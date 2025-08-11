@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Available Routes - User</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .route-container {
+            background: rgba(255,255,255,0.97);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(102,126,234,0.15);
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 1200px;
+        }
+        .route-title {
+            text-align: center;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 2rem;
+        }
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+        .navbar {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/dashboard">
+                <i class="fas fa-bus me-2"></i>BusLink
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link active" href="/userroutes">
+                    <i class="fas fa-route me-1"></i>Browse Routes
+                </a>
+                <a class="nav-link" href="/my-bookings">
+                    <i class="fas fa-ticket-alt me-1"></i>My Bookings
+                </a>
+                <form th:action="@{/logout}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                        <i class="fas fa-sign-out-alt me-1"></i>Logout
+                    </button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container route-container">
+        <h2 class="route-title">Available Bus Routes</h2>
+        
+        <table class="table table-bordered table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Route Name</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Date</th>
+                    <th>Departure Time</th>
+                    <th>Fare</th>
+                    <th>Available Seats</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="route : ${routes}">
+                    <td th:text="${route.routeName}"></td>
+                    <td th:text="${route.fromLocation}"></td>
+                    <td th:text="${route.destination}"></td>
+                    <td th:text="${#temporals.format(route.date, 'dd-MMM-yyyy')}"></td>
+                    <td th:text="${#temporals.format(route.departureTime, 'hh:mm a')}"></td>
+                    <td th:text="'₹' + ${route.fare}"></td>
+                    <td th:text="${route.availableSeat}"></td>
+                    <td>
+                        <!-- Only show Book Now button if seats are available -->
+                        <a th:if="${route.availableSeat > 0}" th:href="@{'/booking/' + ${route.id}}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-ticket-alt me-1"></i>Book Now
+                        </a>
+                        <span th:if="${route.availableSeat <= 0}" class="badge bg-danger">
+                            Sold Out
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div th:if="${#lists.isEmpty(routes)}" class="text-center">
+            <p>No routes available at the moment.</p>
+        </div>
+    </div>
+</body>
+</html>
