@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Available Routes - User</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Libs -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -24,7 +25,7 @@
             text-align: center;
             font-weight: 700;
             color: #667eea;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
         }
         th {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -34,72 +35,217 @@
             background: rgba(255,255,255,0.95);
             backdrop-filter: blur(10px);
         }
+        #map {
+            width: 100%;
+            height: 420px;
+            border-radius: 12px;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+        }
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="/dashboard">
-                <i class="fas fa-bus me-2"></i>BusLink
+<nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/dashboard">
+            <i class="fas fa-bus me-2"></i>BusLink
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link active" href="/userroutes">
+                <i class="fas fa-route me-1"></i>Browse Routes
             </a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link active" href="/userroutes">
-                    <i class="fas fa-route me-1"></i>Browse Routes
-                </a>
-                <a class="nav-link" href="/my-bookings">
-                    <i class="fas fa-ticket-alt me-1"></i>My Bookings
-                </a>
-                <form th:action="@{/logout}" method="post" class="d-inline">
-                    <button type="submit" class="btn btn-outline-danger btn-sm">
-                        <i class="fas fa-sign-out-alt me-1"></i>Logout
-                    </button>
-                </form>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container route-container">
-        <h2 class="route-title">Available Bus Routes</h2>
-        
-        <table class="table table-bordered table-hover align-middle">
-            <thead>
-                <tr>
-                    <th>Route Name</th>
-                    <th>From</th>
-                    <th>To</th>
-                    <th>Date</th>
-                    <th>Departure Time</th>
-                    <th>Fare</th>
-                    <th>Available Seats</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="route : ${routes}">
-                    <td th:text="${route.routeName}"></td>
-                    <td th:text="${route.fromLocation}"></td>
-                    <td th:text="${route.destination}"></td>
-                    <td th:text="${#temporals.format(route.date, 'dd-MMM-yyyy')}"></td>
-                    <td th:text="${#temporals.format(route.departureTime, 'hh:mm a')}"></td>
-                    <td th:text="'₹' + ${route.fare}"></td>
-                    <td th:text="${route.availableSeat}"></td>
-                    <td>
-                        <!-- Only show Book Now button if seats are available -->
-                        <a th:if="${route.availableSeat > 0}" th:href="@{'/booking/' + ${route.id}}" class="btn btn-primary btn-sm">
-                            <i class="fas fa-ticket-alt me-1"></i>Book Now
-                        </a>
-                        <span th:if="${route.availableSeat <= 0}" class="badge bg-danger">
-                            Sold Out
-                        </span>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        
-        <div th:if="${#lists.isEmpty(routes)}" class="text-center">
-            <p>No routes available at the moment.</p>
+            <a class="nav-link" href="/my-bookings">
+                <i class="fas fa-ticket-alt me-1"></i>My Bookings
+            </a>
+            <form th:action="@{/logout}" method="post" class="d-inline">
+                <button type="submit" class="btn btn-outline-danger btn-sm">
+                    <i class="fas fa-sign-out-alt me-1"></i>Logout
+                </button>
+            </form>
         </div>
     </div>
+</nav>
+
+<div class="container route-container">
+    <h2 class="route-title">Available Bus Routes</h2>
+
+    <div id="map"></div>
+
+    <table class="table table-bordered table-hover align-middle">
+        <thead>
+        <tr>
+            <th>Route Name</th>
+            <th>From</th>
+            <th>To</th>
+            <th>Date</th>
+            <th>Departure Time</th>
+            <th>Fare</th>
+            <th>Available Seats</th>
+            <th>Action</th>
+            <th>Map</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="route : ${routes}">
+            <td th:text="${route.routeName}"></td>
+            <td th:text="${route.fromLocation}"></td>
+            <td th:text="${route.destination}"></td>
+            <td th:text="${#temporals.format(route.date, 'dd-MMM-yyyy')}"></td>
+            <td th:text="${#temporals.format(route.departureTime, 'hh:mm a')}"></td>
+            <td th:text="'₹' + ${route.fare}"></td>
+            <td th:text="${route.availableSeat}"></td>
+            <td>
+                <a th:if="${route.availableSeat > 0}"
+                   th:href="@{'/booking/' + ${route.id}}"
+                   class="btn btn-primary btn-sm">
+                    <i class="fas fa-ticket-alt me-1"></i>Book Now
+                </a>
+                <span th:if="${route.availableSeat <= 0}" class="badge bg-danger">
+                    Sold Out
+                </span>
+            </td>
+            <td>
+                <button class="btn btn-outline-secondary btn-sm"
+                        th:attr="data-from=${route.fromLocation}, data-to=${route.destination}, data-name=${route.routeName}"
+                        onclick="showOnMap(this)">
+                    <i class="fas fa-map-marked-alt me-1"></i>Show on Map
+                </button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div th:if="${#lists.isEmpty(routes)}" class="text-center">
+        <p>No routes available at the moment.</p>
+    </div>
+</div>
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+    let map, routeLayer;
+
+    // Map init
+    function initMap() {
+        map = L.map('map').setView([22.9734, 78.6569], 5);
+
+        // OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+    }
+
+    // Show route on map
+    function showOnMap(btn) {
+        const from = btn.getAttribute("data-from");
+        const to = btn.getAttribute("data-to");
+
+        if (!from || !to) {
+            alert("Origin or destination is missing for this route.");
+            return;
+        }
+
+        // Clear old layer
+        if (routeLayer) {
+            map.removeLayer(routeLayer);
+        }
+
+        // Geocode from + to using Nominatim
+        Promise.all([
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(from)}`).then(res => res.json()),
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(to)}`).then(res => res.json())
+        ])
+        .then(([fromData, toData]) => {
+            if (!fromData.length || !toData.length) {
+                alert("Could not find location(s) on map.");
+                return;
+            }
+
+            const fromLatLng = [parseFloat(fromData[0].lat), parseFloat(fromData[0].lon)];
+            const toLatLng = [parseFloat(toData[0].lat), parseFloat(toData[0].lon)];
+
+            // Add markers
+            const fromMarker = L.marker(fromLatLng).bindPopup(`<b>${from}</b>`).addTo(map);
+            const toMarker = L.marker(toLatLng).bindPopup(`<b>${to}</b>`).addTo(map);
+
+            // Draw line between points
+            routeLayer = L.polyline([fromLatLng, toLatLng], {color: 'blue', weight: 4}).addTo(map);
+
+            // Fit map to bounds
+            map.fitBounds(routeLayer.getBounds());
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Error fetching location data.");
+        });
+    }
+
+    // Initialize map when page loads
+    document.addEventListener("DOMContentLoaded", initMap);
+
+    function showOnMap(btn) {
+    const from = btn.getAttribute("data-from");
+    const to = btn.getAttribute("data-to");
+
+    if (!from || !to) {
+        alert("Origin or destination is missing for this route.");
+        return;
+    }
+
+    // Clear old layer
+    if (routeLayer) {
+        map.removeLayer(routeLayer);
+    }
+
+    // Geocode from + to using Nominatim
+    Promise.all([
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(from)}`).then(res => res.json()),
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(to)}`).then(res => res.json())
+    ])
+    .then(([fromData, toData]) => {
+        if (!fromData.length || !toData.length) {
+            alert("Could not find location(s) on map.");
+            return;
+        }
+
+        const fromLatLng = [parseFloat(fromData[0].lat), parseFloat(fromData[0].lon)];
+        const toLatLng = [parseFloat(toData[0].lat), parseFloat(toData[0].lon)];
+
+        // Add markers
+        const fromMarker = L.marker(fromLatLng).bindPopup(`<b>${from}</b>`).addTo(map);
+        const toMarker = L.marker(toLatLng).bindPopup(`<b>${to}</b>`).addTo(map);
+
+        // Draw line between points
+        routeLayer = L.polyline([fromLatLng, toLatLng], {color: 'blue', weight: 4}).addTo(map);
+
+        // Calculate distance in km
+        const distanceMeters = map.distance(fromLatLng, toLatLng);
+        const distanceKm = (distanceMeters / 1000).toFixed(2);
+
+        // Show distance popup at midpoint
+        const midpoint = [
+            (fromLatLng[0] + toLatLng[0]) / 2,
+            (fromLatLng[1] + toLatLng[1]) / 2
+        ];
+        L.popup()
+            .setLatLng(midpoint)
+            .setContent(`<b>Distance:</b> ${distanceKm} km`)
+            .openOn(map);
+
+        // Fit map to bounds
+        map.fitBounds(routeLayer.getBounds());
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Error fetching location data.");
+    });
+}
+</script>
+
 </body>
 </html>

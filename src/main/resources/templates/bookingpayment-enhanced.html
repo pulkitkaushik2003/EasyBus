@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Checkout - Bus Booking</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body style="background:linear-gradient(180deg,#081120,#0b1526);color:#e6edf6;font-family:Inter,Arial;">
+
+<div class="container" style="max-width:1080px;margin:0 auto;padding:24px;">
+
+    <!-- Header -->
+    <div class="header d-flex justify-content-between">
+        <h1>BusLink - Booking #<span th:text="${bookingId}"></span></h1>
+        <div>🔒 Secure Payment</div>
+    </div>
+
+    <!-- Booking Summary -->
+    <div class="mt-4 bg-dark p-3 rounded">
+        <h2>Booking Summary</h2>
+        <p>Route: <span th:text="${routeName}"></span></p>
+        <p>Seats: <span th:text="${seats}"></span></p>
+        <p>Total Fare: ₹<span th:text="${totalFare}"></span></p>
+    </div>
+
+    <!-- Payment Methods -->
+    <div class="mt-4 card bg-dark text-white p-4">
+        <h2>Choose Payment Method</h2>
+        
+        <div class="row mb-4">
+            <div class="col-md-6 mb-3">
+                <button class="btn btn-primary w-100" onclick="showPaymentForm('card')">
+                    <i class="fas fa-credit-card me-2"></i>Credit/Debit Card
+                </button>
+            </div>
+            <div class="col-md-6 mb-3">
+                <button class="btn btn-success w-100" onclick="showPaymentForm('upi')">
+                    <i class="fas fa-mobile-alt me-2"></i>UPI Payment
+                </button>
+            </div>
+        </div>
+
+        <!-- Card Payment Form -->
+        <div id="cardForm" style="display:none;">
+            <h5>Card Payment</h5>
+            <form th:action="@{/api/process-payment}" method="post" th:object="${paymentDetails}">
+                <input type="hidden" th:field="*{bookingId}" />
+                <input type="hidden" th:field="*{paymentMethod}" value="CARD" />
+                
+                <div class="mb-3">
+                    <label>Card Number</label>
+                    <input type="text" class="form-control" th:field="*{cardNumber}" maxlength="19" required>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label>Expiry Date</label>
+                        <input type="text" class="form-control" th:field="*{expiryDate}" maxlength="5" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>CVV</label>
+                        <input type="text" class="form-control" th:field="*{cvv}" maxlength="3" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label>Cardholder Name</label>
+                    <input type="text" class="form-control" th:field="*{cardHolderName}" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-lock me-2"></i>Pay ₹<span th:text="${totalFare}"></span>
+                </button>
+            </form>
+        </div>
+
+        <!-- UPI Payment Form -->
+        <div id="upiForm" style="display:none;">
+            <h5>UPI Payment</h5>
+            <form th:action="@{/api/pay/upi}" method="post" th:object="${paymentDetails}">
+                <input type="hidden" th:field="*{bookingId}" />
+                <input type="hidden" th:field="*{paymentMethod}" value="UPI" />
+                
+                <div class="mb-3">
+                    <label>UPI ID</label>
+                    <input type="text" class="form-control" th:field="*{upiId}" placeholder="example@upi" required>
+                </div>
+                <button type="submit" class="btn btn-success w-100">
+                    <i class="fas fa-mobile-alt me-2"></i>Pay ₹<span th:text="${totalFare}"></span>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function showPaymentForm(type) {
+    document.getElementById('cardForm').style.display = (type === 'card') ? 'block' : 'none';
+    document.getElementById('upiForm').style.display = (type === 'upi') ? 'block' : 'none';
+}
+</script>
+
+</body>
+</html>

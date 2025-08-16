@@ -33,6 +33,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     // Find bookings by user email and status
     List<Booking> findByUserEmailAndStatus(String userEmail, Booking.BookingStatus status);
     
+    
     // Find expired bookings (travel date is before today)
     @Query("SELECT b FROM Booking b WHERE b.travelDate < :currentDate AND b.status IN ('CONFIRMED', 'PENDING')")
     List<Booking> findExpiredBookings(@Param("currentDate") LocalDate currentDate);

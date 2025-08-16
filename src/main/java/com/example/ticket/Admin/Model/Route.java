@@ -6,7 +6,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
@@ -16,6 +18,8 @@ import java.time.LocalTime;
 @Table(name = "routes")
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Route { // Note: Consider adding @NoArgsConstructor and @AllArgsConstructor from Lombok
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -34,24 +38,4 @@ public class Route { // Note: Consider adding @NoArgsConstructor and @AllArgsCon
     private Double fare;
     private Integer totalSeat;
     private Integer availableSeat;
-
-    public Route() {
-        super();
-    }
-
-    // A constructor with the correct types is useful for testing and instantiation.
-    public Route(int id, String routeName, String busNumber, String fromLocation, String destination, LocalDate date,
-                 LocalTime arrivalTime, LocalTime departureTime, Double fare, Integer totalSeat, Integer availableSeat) {
-        this.id = id;
-        this.routeName = routeName;
-        this.busNumber = busNumber;
-        this.fromLocation = fromLocation;
-        this.destination = destination;
-        this.date = date;
-        this.arrivalTime = arrivalTime;
-        this.departureTime = departureTime;
-        this.fare = fare;
-        this.totalSeat = totalSeat;
-        this.availableSeat = availableSeat;
-    }
 }

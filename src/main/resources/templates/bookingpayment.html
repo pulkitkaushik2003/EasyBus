@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Checkout - Bus Booking</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body style="background:linear-gradient(180deg,#081120,#0b1526);color:#e6edf6;font-family:Inter,Arial;">
+
+<div class="container" style="max-width:1080px;margin:0 auto;padding:24px;">
+
+    <!-- Header -->
+    <div class="header" style="display:flex;justify-content:space-between;">
+        <h1>BusLink - Booking #<span th:text="${bookingId}"></span></h1>
+        <div>🔒 Secure Payment</div>
+    </div>
+
+    <!-- Booking Summary -->
+    <div class="mt-4" style="background:#0f1c33;padding:20px;border-radius:10px;">
+        <h2>Booking Summary</h2>
+        <p>Route: <span th:text="${routeName}"></span></p>
+        <p>Seats: <span th:text="${seats}"></span></p>
+        <p>Total Fare: ₹<span th:text="${totalFare}"></span></p>
+    </div>
+
+    <!-- Payment Buttons in Single Div -->
+    <div class="mt-4 card bg-dark text-white p-4 text-center">
+        <h2>Choose Payment Method</h2>
+        <p>Select your preferred payment option to complete the booking</p>
+
+        <!-- Status Messages -->
+        <div id="statusOnline" class="mb-2 text-info"></div>
+        <div id="statusCash" class="mb-2 text-warning"></div>
+
+        <!-- Pay Online Button (redirect) -->
+        <a th:href="@{/api/payonline(bookingId=${bookingId})}" class="btn btn-primary me-2">
+            Pay Online ₹<span th:text="${totalFare}"></span>
+        </a>
+
+        <!-- Pay by Cash Button -->
+        <button id="cashBtn" class="btn btn-warning text-dark">
+            Pay by Cash ₹<span th:text="${totalFare}"></span>
+        </button>
+    </div>
+</div>
+
+<!-- JavaScript -->
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+// Inject bookingId from backend
+const bookingId = /*[[${bookingId}]]*/ 0;
+
+// ---- Pay by Cash ----
+document.getElementById('cashBtn').addEventListener('click', async (event) => {
+    const btn = event.currentTarget;
+    btn.disabled = true;
+    const statusCash = document.getElementById('statusCash');
+
+    try {
+        statusCash.textContent = 'Confirming cash payment...';
+        const res = await fetch('/api/cash-payment', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ bookingId })
+        });
+
+        if (res.ok) {
+            statusCash.textContent = '✅ Cash payment selected. Please pay when boarding.';
+            window.location.href = '/booking-confirmation?bookingId=' + bookingId;
+        } else {
+            const errorText = await res.text();
+            statusCash.textContent = '❌ Could not confirm cash payment: ' + errorText;
+            btn.disabled = false;
+        }
+    } catch (err) {
+        statusCash.textContent = 'Error: ' + err.message;
+        btn.disabled = false;
+    }
+});
+
+/*]]>*/
+</script>
+
+</body>
+</html>

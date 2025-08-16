@@ -84,8 +84,8 @@ public class Booking {
     this.departureTime = route.getDepartureTime();
     this.fare = route.getFare();
     this.seatsBooked = seats;
-    this.bookingTime = LocalDateTime.now(); // ✅ set booking time
-    this.status = BookingStatus.CONFIRMED;  // ✅ set default status
+    this.bookingTime = LocalDateTime.now();
+    this.status = BookingStatus.PENDING;  // ✅ Set to PENDING, payment is required
 }
 
 
