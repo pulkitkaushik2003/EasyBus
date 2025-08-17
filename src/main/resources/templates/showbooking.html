@@ -38,6 +38,29 @@
     </style>
 </head>
 <body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">
+                <i class="fas fa-bus me-2"></i>BusLink Admin
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/admin">
+                    <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                </a>
+                <a class="nav-link active" href="/viewRoutes">
+                    <i class="fas fa-route me-1"></i>Routes
+                </a>
+                <a class="nav-link" href="/Showbooking">
+                    <i class="fas fa-ticket-alt me-1"></i>Bookings
+                </a>
+                <form th:action="@{/logout}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                        <i class="fas fa-sign-out-alt me-1"></i>Logout
+                    </button>
+                </form>
+            </div>
+        </div>
+    </nav>
     <div class="route-list-container">
         <div class="route-list-card">
             <h2 class="route-list-title">Bus Booking Route</h2>
@@ -54,8 +77,6 @@
                         <th>Seats Booked</th>
                         <th>Total Fare</th>                        
                         <th>Booking Time</th>
-                        <th>Transaction id</th>
-
                         
                     </tr>
                 </thead>

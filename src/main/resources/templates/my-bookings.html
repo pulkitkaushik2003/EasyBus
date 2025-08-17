@@ -81,7 +81,7 @@
                             <span th:class="${'status-' + booking.status.toString().toLowerCase()}" th:text="${booking.status}">Status</span>
                             <!-- Show Pay Now button if pending -->
                             <div th:if="${booking.status.toString() == 'PENDING'}" class="mt-2">
-                                <a th:href="@{'/api/payonline?bookingId=' + ${booking.id}}" class="btn btn-warning btn-sm">
+                                <a th:href="@{'/payment/booking/' + ${booking.id}}" class="btn btn-warning btn-sm">
                                     <i class="fas fa-credit-card me-1"></i>Pay Now
                                 </a>
                             </div>

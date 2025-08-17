@@ -4,14 +4,13 @@ import com.example.ticket.Paymentdetail.Model.PaymentDetails;
 import com.example.ticket.Paymentdetail.Service.PaymentService;
 import com.example.ticket.User.Model.Booking;
 import com.example.ticket.User.Service.BookingService;
+import com.example.ticket.User.Service.EmailService;
 import com.example.ticket.User.exception.ResourceNotFoundException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -23,11 +22,15 @@ public class PaymentController {
 
     private final BookingService bookingService;
     private final PaymentService paymentService;
+    private final EmailService emailService;
 
     @Autowired
-    public PaymentController(BookingService bookingService, PaymentService paymentService) {
+    public PaymentController(BookingService bookingService, 
+                             PaymentService paymentService,
+                             EmailService emailService) {
         this.bookingService = bookingService;
         this.paymentService = paymentService;
+        this.emailService = emailService;
     }
 
     // -------- CASH PAYMENT (AJAX JSON) --------
@@ -51,6 +54,9 @@ public class PaymentController {
 
             paymentService.savePaymentDetails(pd);
             bookingService.confirmCashBooking(bookingId);
+
+            // ✅ Email trigger
+            emailService.sendBookingConfirmationEmail(booking, pd);
 
             return ResponseEntity.ok("Cash payment confirmed successfully with Transaction ID: " + pd.getTransactionId());
 
@@ -133,6 +139,11 @@ public class PaymentController {
         paymentService.savePaymentDetails(paymentDetails);
         bookingService.markAsPaid(paymentDetails.getBookingId());
 
+        // ✅ Email trigger
+        Booking booking = bookingService.findBookingById(paymentDetails.getBookingId())
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
+        emailService.sendBookingConfirmationEmail(booking, paymentDetails);
+
         return "redirect:/api/booking-confirmation?bookingId=" + paymentDetails.getBookingId();
     }
 
@@ -158,6 +169,11 @@ public class PaymentController {
         paymentService.savePaymentDetails(paymentDetails);
         bookingService.markAsPaid(paymentDetails.getBookingId());
 
+        // ✅ Email trigger
+        Booking booking = bookingService.findBookingById(paymentDetails.getBookingId())
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
+        emailService.sendBookingConfirmationEmail(booking, paymentDetails);
+
         return "redirect:/api/booking-confirmation?bookingId=" + paymentDetails.getBookingId();
     }
 
@@ -173,13 +189,18 @@ public class PaymentController {
 
         return "booking-confirmation";
     }
+
+    // -------- CANCEL BOOKING --------
     @PostMapping("/cancel-booking")
     public String cancelBooking(@RequestParam("bookingId") Long bookingId) {
         Booking booking = bookingService.findBookingById(bookingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
 
         bookingService.cancelBooking(bookingId);
+
+        // ✅ Email trigger
+        emailService.sendBookingCancellationEmail(booking);
+
         return "redirect:/api/booking-confirmation?bookingId=" + bookingId;
     }
-    
 }

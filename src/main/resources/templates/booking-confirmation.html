@@ -16,6 +16,23 @@
     </style>
 </head>
 <body>
+
+    <nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/dashboard">
+            <i class="fas fa-bus me-2"></i>BusLink
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" href="/userroutes"><i class="fas fa-route me-1"></i>Browse Routes</a>
+            <a class="nav-link active" href="/my-bookings"><i class="fas fa-ticket-alt me-1"></i>My Bookings</a>
+            <form th:action="@{/logout}" method="post" class="d-inline">
+                <button type="submit" class="btn btn-outline-danger btn-sm">
+                    <i class="fas fa-sign-out-alt me-1"></i>Logout
+                </button>
+            </form>
+        </div>
+    </div>
+</nav>
 <div class="container confirmation-container">
 
     <!-- Booking Status -->
@@ -63,9 +80,12 @@
     <div class="text-center">
         <a href="/userroutes" class="btn btn-primary me-2">Book Another Ticket</a>
         <a href="/userroutes" class="btn btn-secondary me-2">Back to Routes</a>
-        <form th:action="@{/api/cancel-booking}" method="post" style="display:inline">
+        <form th:action="@{/api/cancel-booking}" method="post" style="display:inline"
+              onsubmit="return confirm('Are you sure you want to cancel this booking?');">
             <input type="hidden" name="bookingId" th:value="${booking.id}"/>
-            <button type="submit" class="btn btn-danger" th:if="${booking.status.name() != 'CANCELLED'}">Cancel Booking</button>
+            <button type="submit" class="btn btn-danger" th:if="${booking.status.name() != 'CANCELLED'}">
+                Cancel Booking
+            </button>
         </form>
     </div>
 

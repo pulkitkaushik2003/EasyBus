@@ -6,7 +6,6 @@ import com.example.ticket.Admin.Service.AdminService;
 import com.example.ticket.User.Model.Booking;
 import com.example.ticket.User.Repository.BookingRepository;
 import com.example.ticket.User.Service.BookingExpirationService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +21,7 @@ public class AdminContrller {
     private final AdminService adminService;
     private final BookingExpirationService bookingExpirationService;
 
-    @Autowired
+    
     public AdminContrller(BookingRepository bookingRepository, AdminService adminService, BookingExpirationService bookingExpirationService) {
         this.bookingRepository = bookingRepository;
         this.adminService = adminService;

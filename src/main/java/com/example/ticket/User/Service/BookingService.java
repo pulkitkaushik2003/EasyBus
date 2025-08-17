@@ -7,8 +7,8 @@ import com.example.ticket.User.Model.Booking;
 import com.example.ticket.User.Repository.BookingRepository;
 import com.example.ticket.User.exception.BookingException;
 import com.example.ticket.User.exception.ResourceNotFoundException;
+import com.example.ticket.Paymentdetail.Model.PaymentDetails;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,8 +21,8 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final RouteRepository routeRepository;
 
-    @Autowired
-    public BookingService(BookingRepository bookingRepository, RouteRepository routeRepository) {
+    public BookingService(BookingRepository bookingRepository,
+                          RouteRepository routeRepository) {
         this.bookingRepository = bookingRepository;
         this.routeRepository = routeRepository;
     }
@@ -71,7 +71,7 @@ public class BookingService {
 
     // ------------ CONFIRM CASH PAYMENT ------------
     @Transactional
-    public void confirmCashBooking(Long bookingId) {
+    public Booking confirmCashBooking(Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Booking not found with id: " + bookingId));
 
@@ -81,24 +81,25 @@ public class BookingService {
         }
 
         booking.setStatus(Booking.BookingStatus.CONFIRMED);
-        bookingRepository.save(booking);
+        return bookingRepository.save(booking);
     }
 
     // ------------ MARK AS PAID (Card/UPI) ------------
     @Transactional
-    public void markAsPaid(Long bookingId) {
+    public Booking markAsPaid(Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Booking not found with id: " + bookingId));
 
         if (booking.getStatus() == Booking.BookingStatus.PENDING) {
             booking.setStatus(Booking.BookingStatus.CONFIRMED);
-            bookingRepository.save(booking);
+            return bookingRepository.save(booking);
         }
+        return booking;
     }
 
     // ------------ CANCEL BOOKING ------------
     @Transactional
-    public void cancelBooking(Long bookingId) {
+    public Booking cancelBooking(Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Booking not found with id: " + bookingId));
 
@@ -115,6 +116,6 @@ public class BookingService {
 
         // Set booking status to CANCELLED
         booking.setStatus(Booking.BookingStatus.CANCELLED);
-        bookingRepository.save(booking);
+        return bookingRepository.save(booking);
     }
 }

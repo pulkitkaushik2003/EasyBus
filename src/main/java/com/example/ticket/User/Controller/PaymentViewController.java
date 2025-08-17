@@ -42,7 +42,9 @@ public class PaymentViewController {
         model.addAttribute("routeName", booking.getRouteName());
         model.addAttribute("seats", booking.getSeatsBooked());
         model.addAttribute("totalFare", booking.getTotalFare());
+        model.addAttribute("userEmail", currentUser.getEmail());
+        model.addAttribute("userName", currentUser.getUsername());
 
-        return "bookingpayment";
+        return "razorpay-payment";
     }
 }
