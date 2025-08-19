@@ -6,7 +6,6 @@ import com.example.ticket.User.Model.Booking;
 import com.example.ticket.User.Service.BookingService;
 import com.example.ticket.User.Service.EmailService;
 import com.example.ticket.User.exception.ResourceNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,7 +23,7 @@ public class PaymentController {
     private final PaymentService paymentService;
     private final EmailService emailService;
 
-    @Autowired
+   
     public PaymentController(BookingService bookingService, 
                              PaymentService paymentService,
                              EmailService emailService) {

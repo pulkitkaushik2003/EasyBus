@@ -1,5 +1,4 @@
 package com.example.ticket.User.Controller;
-
 import com.example.ticket.Admin.Model.LoginAdminuser;
 import com.example.ticket.Admin.Model.Route;
 import com.example.ticket.Admin.Service.AdminService;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import java.util.List;
 
 @Controller
@@ -133,18 +131,23 @@ public class usercontroller {
 
     // ------------------ 5. Show user's own bookings ------------------
     @GetMapping("/my-bookings")
-    public String showMyBookings(Model model) {
-        LoginAdminuser currentUser = getCurrentUser();
-        if (currentUser == null) {
-            return "redirect:/login";
-        }
-
-        List<Booking> userBookings = bookingService.findBookingsByUser(currentUser);
-        model.addAttribute("bookings", userBookings);
-        model.addAttribute("username", currentUser.getUsername());
-
-        return "my-bookings";
+public String showMyBookings(Model model) {
+    LoginAdminuser currentUser = getCurrentUser();
+    if (currentUser == null) {
+        return "redirect:/login";
     }
+
+    List<Booking> userBookings = bookingRepository.findByUserId((long) currentUser.getId());
+
+    System.out.println("DEBUG: User " + currentUser.getUsername() + " ID=" + currentUser.getId() +
+                       " bookings=" + userBookings.size());
+
+    model.addAttribute("bookings", userBookings);
+    model.addAttribute("username", currentUser.getUsername());
+
+    return "my-bookings";
+}
+
 
     // ------------------ Utility: Get logged in user ------------------
     private LoginAdminuser getCurrentUser() {
@@ -154,4 +157,5 @@ public class usercontroller {
         }
         return adminService.findByUsername(auth.getName());
     }
+    
 }

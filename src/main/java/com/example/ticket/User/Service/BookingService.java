@@ -7,8 +7,6 @@ import com.example.ticket.User.Model.Booking;
 import com.example.ticket.User.Repository.BookingRepository;
 import com.example.ticket.User.exception.BookingException;
 import com.example.ticket.User.exception.ResourceNotFoundException;
-import com.example.ticket.Paymentdetail.Model.PaymentDetails;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,6 +54,9 @@ public class BookingService {
     // ------------ FIND BY ID ------------
     public Optional<Booking> findBookingById(Long bookingId) {
         return bookingRepository.findById(bookingId);
+    }
+     public List<Booking> findBookingsByUserEmail(String email) {
+        return bookingRepository.findByUserEmail(email);
     }
 
     // ------------ FIND BY USER ------------

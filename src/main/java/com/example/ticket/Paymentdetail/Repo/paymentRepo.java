@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 public interface paymentRepo extends JpaRepository<PaymentDetails, Long> {
     PaymentDetails findByBookingId(Long bookingId);
     
+    
 }

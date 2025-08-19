@@ -14,7 +14,7 @@ import java.util.List;
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     
-    
+    List<Booking> findByUserName(String userName);
     // Find bookings by user email
     List<Booking> findByUserEmail(String userEmail);
     
