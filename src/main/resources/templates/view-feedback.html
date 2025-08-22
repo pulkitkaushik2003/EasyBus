@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>View Feedback - Bus Booking</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .feedback-container {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 18px;
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 700px;
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.15);
+        }
+        
+        .feedback-title {
+            text-align: center;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: #2d3e50;
+        }
+        
+        .feedback-details {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .detail-item {
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .detail-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .star-rating {
+            color: #ffc107;
+            font-size: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        .comments-box {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            border-left: 4px solid #667eea;
+            margin: 1.5rem 0;
+        }
+        
+        .no-comments {
+            color: #6c757d;
+            font-style: italic;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            border: none;
+            border-radius: 6px;
+            padding: 0.75rem 1.5rem;
+        }
+        
+        .btn-primary:hover {
+            background: #5665d3;
+        }
+        
+        .alert {
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #2d3e50;
+            min-width: 120px;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/dashboard">
+            <i class="fas fa-bus me-2"></i>BusLink
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" href="/userroutes"><i class="fas fa-route me-1"></i>Browse Routes</a>
+            <a class="nav-link" href="/my-bookings"><i class="fas fa-ticket-alt me-1"></i>My Bookings</a>
+            <a class="nav-link active" href="/my-feedback"><i class="fas fa-star me-1"></i>My Feedback</a>
+            <form th:action="@{/logout}" method="post" class="d-inline">
+                <button type="submit" class="btn btn-outline-danger btn-sm">
+                    <i class="fas fa-sign-out-alt me-1"></i>Logout
+                </button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<div class="container feedback-container">
+    <!-- Error Messages -->
+    <div th:if="${error}" class="alert alert-danger" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <span th:text="${error}"></span>
+    </div>
+
+    <h2 class="feedback-title">
+        <i class="fas fa-eye me-2"></i>Feedback Details
+    </h2>
+
+    <!-- Feedback Details -->
+    <div th:if="${feedback}" class="feedback-details">
+        <!-- Rating -->
+        <div class="text-center">
+            <div class="star-rating">
+                <span th:each="i : ${#numbers.sequence(1, 5)}">
+                    <i th:class="${i <= feedback.rating} ? 'fas fa-star' : 'far fa-star'"></i>
+                </span>
+            </div>
+            <h4 th:text="'Rated ' + ${feedback.rating} + ' out of 5 stars'">Rated 5 out of 5 stars</h4>
+        </div>
+
+        <!-- Booking Information -->
+        <div class="detail-item">
+            <div class="row">
+                <div class="col-md-3 detail-label">Route:</div>
+                <div class="col-md-9" th:text="${feedback.routeName}"></div>
+            </div>
+        </div>
+        
+        <div class="detail-item">
+            <div class="row">
+                <div class="col-md-3 detail-label">Journey:</div>
+                <div class="col-md-9">
+                    <span th:text="${feedback.fromLocation}"></span> → 
+                    <span th:text="${feedback.toLocation}"></span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="detail-item">
+            <div class="row">
+                <div class="col-md-3 detail-label">Booking ID:</div>
+                <div class="col-md-9" th:text="${feedback.bookingId}"></div>
+            </div>
+        </div>
+        
+        <div class="detail-item">
+            <div class="row">
+                <div class="col-md-3 detail-label">Submitted:</div>
+                <div class="col-md-9">
+                    <span th:text="${#temporals.format(feedback.createdAt, 'dd MMMM yyyy, HH:mm')}"></span>
+                </div>
+            </div>
+        </div>
+        
+        <div th:if="${feedback.updatedAt}" class="detail-item">
+            <div class="row">
+                <div class="col-md-3 detail-label">Last Updated:</div>
+                <div class="col-md-9">
+                    <span th:text="${#temporals.format(feedback.updatedAt, 'dd MMMM yyyy, HH:mm')}"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comments -->
+        <div th:if="${feedback.comments}">
+            <h5 class="mt-4 mb-3"><i class="fas fa-comment me-2"></i>Your Comments</h5>
+            <div class="comments-box">
+                <p class="mb-0" th:text="${feedback.comments}"></p>
+            </div>
+        </div>
+        
+        <div th:unless="${feedback.comments}" class="no-comments">
+            <i class="fas fa-comment-slash fa-2x mb-3"></i>
+            <p>No comments were provided with this feedback.</p>
+        </div>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="text-center mt-4">
+        <a href="/my-feedback" class="btn btn-primary me-3">
+            <i class="fas fa-arrow-left me-2"></i>Back to My Feedback
+        </a>
+        <a href="/my-bookings" class="btn btn-outline-primary">
+            <i class="fas fa-ticket-alt me-2"></i>My Bookings
+        </a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

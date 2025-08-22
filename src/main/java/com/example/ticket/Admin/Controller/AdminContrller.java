@@ -4,10 +4,12 @@ import com.example.ticket.Admin.Model.LoginAdminuser;
 import com.example.ticket.Admin.Model.Route;
 import com.example.ticket.Admin.Service.AdminService;
 import com.example.ticket.User.Model.Booking;
+import com.example.ticket.User.Model.Feedback;
 import com.example.ticket.User.Repository.BookingRepository;
+import com.example.ticket.User.Repository.FeedbackRepository;
 import com.example.ticket.User.Service.BookingExpirationService;
 
-import org.springframework.security.core.Authentication;   // ✅ Correct import
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,15 +25,19 @@ public class AdminContrller {
     private final BookingRepository bookingRepository;
     private final AdminService adminService;
     private final BookingExpirationService bookingExpirationService;
+    private final FeedbackRepository feedbackRepository;
 
-    public AdminContrller(BookingRepository bookingRepository, 
-                          AdminService adminService, 
-                          BookingExpirationService bookingExpirationService) {
+    public AdminContrller(BookingRepository bookingRepository,
+                          AdminService adminService,
+                          BookingExpirationService bookingExpirationService,
+                          FeedbackRepository feedbackRepository) {
         this.bookingRepository = bookingRepository;
         this.adminService = adminService;
         this.bookingExpirationService = bookingExpirationService;
+        this.feedbackRepository = feedbackRepository;
     }
 
+    // ===================== AUTH & LOGIN =====================
     @GetMapping("/")
     public String home() {
         return "Login";
@@ -49,11 +55,20 @@ public class AdminContrller {
     }
 
     @PostMapping("/saveUser")
-    public String saveUser(@ModelAttribute("loginAdminuser") LoginAdminuser loginAdminuser, 
+    public String saveUser(@ModelAttribute("loginAdminuser") LoginAdminuser loginAdminuser,
                            RedirectAttributes redirectAttributes) {
         adminService.saveUser(loginAdminuser);
         redirectAttributes.addFlashAttribute("message", "User registered successfully!");
         return "redirect:/login";
+    }
+
+    @GetMapping("/default")
+    public String redirectAfterLogin(Authentication auth) {
+        if (auth != null && auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            return "redirect:/admin";
+        }
+        return "redirect:/dashboard";
     }
 
     // ===================== ADMIN DASHBOARD =====================
@@ -67,8 +82,8 @@ public class AdminContrller {
                 .sum();
 
         model.addAttribute("dailyRevenue", dailyRevenue);
-        int totalRoutes = adminService.getAllRoutes().size();
-        model.addAttribute("totalRoutes", totalRoutes);
+        model.addAttribute("totalRoutes", adminService.getAllRoutes().size());
+        model.addAttribute("today", today);
 
         return "Admindashboard";
     }
@@ -81,7 +96,7 @@ public class AdminContrller {
     }
 
     @PostMapping("/addRoute")
-    public String saveRoute(@ModelAttribute("route") Route route, 
+    public String saveRoute(@ModelAttribute("route") Route route,
                             RedirectAttributes redirectAttributes) {
         adminService.saveRoute(route);
         redirectAttributes.addFlashAttribute("message", "Route added successfully!");
@@ -97,12 +112,16 @@ public class AdminContrller {
     @GetMapping("/editRoute/{id}")
     public String editRoute(@PathVariable int id, Model model) {
         Route route = adminService.getRouteById(id);
+        if (route == null) {
+            model.addAttribute("error", "Route not found!");
+            return "redirect:/viewRoutes";
+        }
         model.addAttribute("route", route);
         return "editroute";
     }
 
     @PostMapping("/updateRoute")
-    public String updateRoute(@ModelAttribute("route") Route route, 
+    public String updateRoute(@ModelAttribute("route") Route route,
                               RedirectAttributes redirectAttributes) {
         adminService.saveRoute(route);
         redirectAttributes.addFlashAttribute("message", "Route updated successfully!");
@@ -115,46 +134,28 @@ public class AdminContrller {
             Route route = adminService.getRouteById(id);
             if (route == null) {
                 redirectAttributes.addFlashAttribute("error", "Route not found!");
-                return "redirect:/viewRoutes";
+            } else {
+                adminService.deleteRouteById(id);
+                redirectAttributes.addFlashAttribute("message",
+                        "Route '" + route.getRouteName() + "' deleted successfully!");
             }
-
-            adminService.deleteRouteById(id);
-            redirectAttributes.addFlashAttribute("message", 
-                "Route '" + route.getRouteName() + "' has been deleted successfully!");
         } catch (Exception e) {
             System.err.println("Error deleting route: " + e.getMessage());
-            redirectAttributes.addFlashAttribute("error", 
-                "An error occurred while deleting the route. Please try again.");
+            redirectAttributes.addFlashAttribute("error",
+                    "An error occurred while deleting the route. Please try again.");
         }
-
         return "redirect:/viewRoutes";
-    }
-
-    // ===================== LOGIN REDIRECT =====================
-    @GetMapping("/default")
-    public String redirectAfterLogin(Authentication auth) {
-        if (auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            return "redirect:/admin";
-        } else {
-            return "redirect:/dashboard";
-        }
     }
 
     // ===================== USER DASHBOARD =====================
     @GetMapping("/dashboard")
-    public String showdash(Model model) {
+    public String showUserDashboard(Model model) {
         LoginAdminuser currentUser = getCurrentUser();
         if (currentUser == null) {
             return "redirect:/login";
         }
 
-        // ✅ Only logged-in user’s bookings
         List<Booking> userBookings = bookingRepository.findByUserId((long) currentUser.getId());
-
-        // Debugging
-        System.out.println("Dashboard DEBUG => UserId=" + currentUser.getId() +
-                ", Bookings Found=" + userBookings.size());
-
         model.addAttribute("bookings", userBookings);
         model.addAttribute("username", currentUser.getUsername());
 
@@ -163,14 +164,32 @@ public class AdminContrller {
 
     // ===================== ADMIN: ALL BOOKINGS =====================
     @GetMapping("/Showbooking")
-    public String showBooking(Model model) {
+    public String showAllBookings(Model model) {
         int expiredCount = bookingExpirationService.markExpiredBookingsManually();
         if (expiredCount > 0) {
             System.out.println("Admin: Marked " + expiredCount + " expired bookings");
         }
-
         model.addAttribute("bookings", bookingRepository.findAll());
         return "showbooking";
+    }
+
+    // ===================== ADMIN: FEEDBACK MANAGEMENT =====================
+    @GetMapping("/admin/feedback")
+    public String showAllFeedback(Model model) {
+        List<Feedback> allFeedback = feedbackRepository.findAll();
+
+        long totalFeedback = allFeedback.size();
+        double averageRating = allFeedback.stream()
+                .mapToInt(Feedback::getRating)
+                .average()
+                .orElse(0.0);
+
+        model.addAttribute("feedbacks", allFeedback);
+        model.addAttribute("totalFeedback", totalFeedback);
+        model.addAttribute("averageRating", String.format("%.1f", averageRating));
+        model.addAttribute("routes", adminService.getAllRoutes());
+
+        return "admin-feedback";
     }
 
     // ===================== HELPER METHOD =====================
