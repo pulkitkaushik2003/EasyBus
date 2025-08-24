@@ -1,25 +1,22 @@
-# Use the official Maven image to build the application
-FROM maven:3.8.6-openjdk-22 AS build
+# Use Maven with JDK 21 (closest LTS) to build
+# JDK 22 builds bhi Maven 3.9+ pe chalega
+FROM maven:3.9.9-eclipse-temurin-21 AS build
 
-# Set the working directory
 WORKDIR /app
 
-# Copy the pom.xml and download dependencies
 COPY pom.xml .
 COPY src ./src
+
 RUN mvn clean package -DskipTests
 
-# Use the official OpenJDK image to run the application
-FROM openjdk:22-jdk-slim
+# Use Eclipse Temurin JDK 22 for runtime
+FROM eclipse-temurin:22-jdk
 
-# Set the working directory
 WORKDIR /app
 
-# Copy the built JAR file from the build stage
-COPY --from=build /app/target/ticket-0.0.1-SNAPSHOT.jar ticket.jar
+COPY --from=build /app/target/*.jar app.jar
 
-# Expose the port the app runs on
+# Render sets PORT dynamically, don't hardcode
 EXPOSE 2626
 
-# Run the application
-ENTRYPOINT ["java", "-jar", "ticket.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
