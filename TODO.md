@@ -1,26 +1,35 @@
-# Feedback System Modification Plan
-
-## Objective
-Modify the system so that after saving feedback, it only shows in the admin section.
+# Maven and Maven Daemon Setup Plan
 
 ## Steps to Complete:
 
-1. [x] Modify usercontroller.java - Change redirect after feedback submission
-2. [x] Update feedback-form.html - Add admin-only visibility notice
-3. [x] Update my-feedback.html - Restrict user access to feedback
-4. [x] Update admin-feedback.html - Add admin-only indication
+1. [x] Maven is already installed and working via Maven Wrapper (mvnw.cmd)
+   - Maven 3.9.11
+   - Java 22.0.1
+   - Working directory: C:\Users\Welcome\.m2\wrapper\dists\apache-maven-3.9.11\d6d3cbd4012d4c1d840e93277aca316c
 
-## Current Status:
-- Controller redirect changed from `/my-feedback` to `/my-bookings`
-- Success message updated to indicate admin review
-- Feedback form now includes admin-only visibility notice
-- My feedback page now shows admin-only message instead of user feedback
-- Admin feedback page now indicates admin-only access
-- All changes completed successfully
+2. [ ] Download Maven Daemon (mvnd)
+3. [ ] Extract and set up mvnd
+4. [ ] Verify mvnd installation
+5. [ ] Test mvnd with the Spring Boot project
 
-## Summary of Changes:
-- Users are redirected to `/my-bookings` after submitting feedback
-- Success message indicates feedback is for admin review
-- Users can no longer view their own feedback
-- Admin interface clearly shows feedback is admin-only
-- System now meets the requirement that feedback only shows in admin section
+## Detailed Instructions:
+
+### 1. Maven Status (COMPLETE)
+- Maven Wrapper is functional: `mvnw.cmd --version` works
+- Java version: 22.0.1 (Oracle Corporation)
+- Ready for mvnd setup
+
+### 4. Install Maven Daemon
+- Download from: https://github.com/apache/maven-mvnd/releases
+- Choose the Windows version (maven-mvnd-*-windows-amd64.zip)
+
+### 5. Set up mvnd
+- Extract to a directory
+- Add mvnd bin directory to PATH
+
+### 6. Verify mvnd
+- Run: `mvnd --version`
+
+### 7. Test with Project
+- Run: `mvnd clean install`
+- Run: `mvnd spring-boot:run`
