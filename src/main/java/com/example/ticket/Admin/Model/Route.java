@@ -22,7 +22,7 @@ import java.time.LocalTime;
 @AllArgsConstructor
 public class Route { // Note: Consider adding @NoArgsConstructor and @AllArgsConstructor from Lombok
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     private String routeName;
