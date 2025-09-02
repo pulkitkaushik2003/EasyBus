@@ -99,35 +99,30 @@
 <div class="container-fluid">
   <div class="row">
     <!-- Sidebar -->
-    <nav class="sidebar col-lg-2 d-none d-lg-flex flex-column align-items-start px-4">
-      <div class="brand mt-2 mb-4">
-        <svg width="32" height="32" fill="currentColor" viewBox="0 0 20 20"><rect width="20" height="10" y="6" rx="2" fill="#f7e409"/><rect width="20" height="4" /><circle cx="4.7" cy="17" r="2" fill="#fff"/><circle cx="16" cy="17" r="2" fill="#fff"/></svg>
-        EasyBus
-      </div>
-      <ul class="nav flex-column w-100">
-        <li><a class="nav-link active" href="/dashboard"><svg width="20" height="20" fill="currentColor"><path d="M10 2L2 8v10h5v-6h6v6h5V8z"/></svg>Dashboard</a></li>
-        <li><a class="nav-link" href="/userroutes"><svg width="20" height="20" fill="currentColor"><circle cx="10" cy="10" r="8"/><rect x="9" y="5" width="2" height="6"/></svg>Bus routes</a></li>
-        <li><a class="nav-link" href="/my-bookings"><svg width="20" height="20" fill="currentColor"><rect x="3" y="4" width="14" height="14" rx="2"/><rect x="7" y="2" width="6" height="4" rx="2"/></svg>My Bookings</a></li>
-        
-        <li><a class="nav-link" href="/my-feedback"><svg width="20" height="20" fill="currentColor"><circle cx="10" cy="7" r="3"/><rect x="5" y="12" width="10" height="5" rx="2"/></svg>Feedback</a></li>
-        <li><a class="nav-link" href="#"><svg width="20" height="20" fill="currentColor"><rect x="4" y="8" width="12" height="8" rx="2"/><rect x="8" y="4" width="4" height="6" rx="1"/></svg>Report</a></li>
-        <li><a class="nav-link" href="#"><svg width="20" height="20" fill="currentColor"><circle cx="10" cy="10" r="9"/><path d="M10 13v-1a3 3 0 1 0-3-3"/></svg>Settings</a></li>
-        <li><a class="nav-link" href="#"><svg width="20" height="20" fill="currentColor"><circle cx="10" cy="10" r="10"/><path d="M10 6v4"/><circle cx="10" cy="15" r="1"/></svg>Help & Support</a></li>
-      </ul>
-      <div class="upgrade-banner mt-auto">
-        <div>
-          <img src="https://cdn-icons-png.flaticon.com/512/66/66143.png" alt="bus" width="65"><br>
-          <div class="mt-2">Make Your Journey Comfortable!</div>
-          <button class="btn btn-upgrade">Upgrade Now</button>
-        </div>
-      </div>
-      <form th:action="@{/logout}" method="post" class="d-inline">
-        <button type="submit" class="logout-link" style="background: none; border: none; width: 100%; text-align: left;">
-          <svg width="20" height="20" fill="currentColor"><path d="M12 3H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h7"/><path d="M17 12l2-2-2-2"/><path d="M13 10h6"/></svg>
-          Log Out
-        </button>
-      </form>
-    </nav>
+   <!-- Toggle Button (visible on small screens) -->
+<button class="btn btn-primary d-lg-none m-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
+  ☰ Menu
+</button>
+
+<!-- Offcanvas Sidebar -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarMenu">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title">EasyBus</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body">
+    <ul class="nav flex-column">
+      <li><a class="nav-link active" href="/dashboard">Dashboard</a></li>
+      <li><a class="nav-link" href="/userroutes">Bus Routes</a></li>
+      <li><a class="nav-link" href="/my-bookings">My Bookings</a></li>
+      <li><a class="nav-link" href="/my-feedback">Feedback</a></li>
+      <li><a class="nav-link" href="#">Report</a></li>
+      <li><a class="nav-link" href="#">Settings</a></li>
+      <li><a class="nav-link" href="#">Help & Support</a></li>
+    </ul>
+  </div>
+</div>
+
 
     <!-- Main Area -->
     <main class="main-area col-lg-10 col-md-12">
