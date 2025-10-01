@@ -40,7 +40,7 @@ public class AdminContrller {
     // ===================== AUTH & LOGIN =====================
     @GetMapping("/")
     public String home() {
-        return "Login";
+        return "index";
     }
 
     @GetMapping("/login")
