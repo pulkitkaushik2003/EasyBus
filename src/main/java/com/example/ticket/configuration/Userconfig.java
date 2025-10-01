@@ -46,7 +46,7 @@ public class Userconfig {
 
             .authorizeHttpRequests(auth -> auth
                 // ✅ Public Pages
-                .requestMatchers("/register", "/saveUser", "/login", "/resetPassword").permitAll()
+                .requestMatchers("/register", "/saveUser", "/login", "/resetPassword","/").permitAll()
 
                 // ✅ Static Assets
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
