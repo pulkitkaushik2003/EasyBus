@@ -67,7 +67,7 @@ public class Userconfig {
 
             // ✅ Login Page
             .formLogin(form -> form
-                .loginPage("/")
+                .loginPage("/login")
                 .defaultSuccessUrl("/default", true)
                 .permitAll()
             )
